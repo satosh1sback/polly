@@ -1,0 +1,114 @@
+PULSE — FILE STRUCTURE GUIDE
+==============================
+A plain-English guide to every file and folder in this project.
+Written for anyone new to the codebase.
+
+
+ROOT LEVEL
+----------
+STRUCTURE.txt            <- You are reading this file.
+HOW_TO_RUN_LOCALLY.txt   <- Step-by-step guide to run the app on your own computer.
+replit.md                <- Notes for the AI assistant about project goals and setup.
+package.json             <- Workspace config for pnpm (used by the mockup-sandbox tool).
+pnpm-workspace.yaml      <- Tells pnpm which folders are sub-projects.
+pyproject.toml           <- Python project config (package metadata, tool settings).
+uv.lock                  <- Locked Python dependency versions (like package-lock.json).
+scripts/post-merge.sh    <- Runs automatically when code changes are merged in Replit.
+
+  artifacts/api-server-python/run_local.sh
+    A shell script (Mac/Linux) that installs everything and starts the server
+    in one command. See HOW_TO_RUN_LOCALLY.txt for full instructions.
+
+
+artifacts/
+----------
+This folder holds all the runnable services.
+
+  api-server-python/          <-- THE MAIN APP (Python/FastAPI)
+    Everything the Pulse website needs — one server, one folder.
+
+    main.py
+      All the route handlers for the app:
+        - GET /               Explore page (poll list with search/filter)
+        - GET /poll/{id}      Individual poll detail with voting
+        - POST /poll/{id}/vote  Cast a vote (returns an HTML snippet via HTMX)
+        - GET /create         Create poll form
+        - POST /create        Save a new poll, then redirect to it
+        - GET /partials/polls Poll cards grid only (for live HTMX filtering)
+        - GET /healthz        Simple health check
+
+    database.py
+      Opens a connection to the PostgreSQL database.
+      Every route handler uses this to read and write data.
+
+    models.py
+      Defines the three database tables as Python classes:
+        - Poll        The poll question, category, description, and metadata
+        - PollOption  Each answer choice, storing its running vote count
+        - Vote        One record per vote — linked to a browser cookie (voter_token)
+
+    run.py
+      Starts the server. Run "python run.py" to launch.
+      Reads the PORT environment variable so Replit can assign the right port.
+
+    requirements.txt
+      List of Python packages this server needs to install.
+
+    templates/
+      HTML pages the server fills in and sends to the browser (Jinja2 format).
+      {{ variable }} inserts data. {% if %} / {% for %} add logic.
+      hx-* attributes trigger live updates via HTMX (no page reload needed).
+
+        base.html          Shared shell: <html>, <head>, navbar, footer.
+                           Every other page "extends" this one.
+
+        index.html         The Explore/home page. Stats bar, search box,
+                           category pills, sort dropdown, and the poll grid.
+
+        poll.html          A single poll. Shows vote buttons before voting,
+                           or result percentage bars after.
+
+        create.html        Form to create a new poll (question, options,
+                           category, optional end date, optional your name).
+
+        _polls_grid.html   Just the poll card grid — no full page wrapper.
+                           Fetched by HTMX when filters change so only
+                           the grid refreshes, not the whole page.
+
+        _vote_results.html Just the results bars section.
+                           Returned after voting so HTMX can swap it in
+                           instantly without reloading the page.
+
+    static/
+      Empty folder for future static files (images, custom CSS, etc.).
+      Currently unused — Tailwind and HTMX are loaded from CDN.
+
+  api-server/
+    No longer active. Only contains artifact.toml which Replit needs
+    to keep track of this service slot. The source code has been removed.
+
+    .replit-artifact/artifact.toml
+      Replit service configuration (inactive).
+
+  polls/
+    No longer active. Only contains artifact.toml — this is actually what
+    Replit uses to launch the Python server above (it points at api-server-python/).
+
+    .replit-artifact/artifact.toml
+      Replit service configuration — dev command runs the Python server.
+
+  mockup-sandbox/
+    A design tool used during development to preview UI components in
+    isolation. Not part of the Pulse app itself — internal dev tool only.
+
+
+HOW THE APP WORKS (SIMPLE SUMMARY)
+------------------------------------
+1. You visit the site. Your browser talks to FastAPI (main.py).
+2. FastAPI reads data from PostgreSQL (via SQLAlchemy using models.py / database.py).
+3. FastAPI fills in an HTML template (from templates/) and sends it to your browser.
+4. HTMX (loaded from CDN) watches for filter changes and vote clicks, then
+   swaps just that part of the page — no full refresh needed.
+5. Tailwind CSS (loaded from CDN) handles all the styling.
+6. Your vote is tracked by a browser cookie called "voter_token" (a random ID
+   set on first visit) so you can only vote once per poll per device.

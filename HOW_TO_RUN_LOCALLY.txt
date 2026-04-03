@@ -1,0 +1,125 @@
+HOW TO RUN PULSE LOCALLY
+=========================
+Step-by-step guide. No experience needed.
+
+
+WHAT YOU NEED INSTALLED FIRST
+-------------------------------
+1. Python 3.11 or newer
+   Download from: https://www.python.org/downloads/
+   (During install on Windows, check "Add Python to PATH")
+
+2. Git (to download the project)
+   Download from: https://git-scm.com/downloads
+
+3. A PostgreSQL database
+   The easiest option is to use the same Replit database —
+   see Step 3 below for how to get that connection string.
+
+
+STEP 1 — Download the project
+-------------------------------
+Open a terminal (Command Prompt on Windows, Terminal on Mac/Linux) and run:
+
+    git clone <YOUR_REPLIT_REPO_URL> pulse
+    cd pulse/artifacts/api-server-python
+
+Replace <YOUR_REPLIT_REPO_URL> with the Git URL from your Replit project
+(found under the Version Control tab in Replit).
+
+
+STEP 2 — Install Python packages
+----------------------------------
+Still inside the artifacts/api-server-python folder, run:
+
+    pip install -r requirements.txt
+
+If "pip" doesn't work, try "pip3" instead:
+
+    pip3 install -r requirements.txt
+
+
+STEP 3 — Set your database connection
+---------------------------------------
+The app needs to know where your database is. You do this by setting
+an environment variable called DATABASE_URL.
+
+OPTION A — Use your Replit database (easiest, no setup needed):
+  1. In Replit, click the padlock icon ("Secrets") in the left sidebar
+  2. Find the secret called DATABASE_URL and copy its value
+  3. Set it in your terminal:
+
+     On Mac/Linux:
+         export DATABASE_URL="paste-your-value-here"
+
+     On Windows (Command Prompt):
+         set DATABASE_URL=paste-your-value-here
+
+     On Windows (PowerShell):
+         $env:DATABASE_URL="paste-your-value-here"
+
+OPTION B — Use a local PostgreSQL database:
+  1. Install PostgreSQL: https://www.postgresql.org/download/
+  2. Create a database called "pulse"
+  3. Set DATABASE_URL like this:
+         export DATABASE_URL="postgresql://postgres:yourpassword@localhost:5432/pulse"
+  (You will start with an empty database — no seed data)
+
+
+STEP 4 — Start the server
+---------------------------
+Make sure you are inside artifacts/api-server-python, then run:
+
+    python run.py
+
+You should see something like:
+    INFO: Uvicorn running on http://0.0.0.0:8080
+
+Now open your browser and go to:
+    http://localhost:8080
+
+
+STEP 5 — Stop the server
+--------------------------
+Press Ctrl+C in the terminal.
+
+
+QUICK REFERENCE (all commands together)
+-----------------------------------------
+Mac/Linux:
+
+    git clone <YOUR_REPLIT_REPO_URL> pulse
+    cd pulse/artifacts/api-server-python
+    pip install -r requirements.txt
+    export DATABASE_URL="your-database-url-here"
+    python run.py
+
+Windows (Command Prompt):
+
+    git clone <YOUR_REPLIT_REPO_URL> pulse
+    cd pulse\artifacts\api-server-python
+    pip install -r requirements.txt
+    set DATABASE_URL=your-database-url-here
+    python run.py
+
+
+TROUBLESHOOTING
+----------------
+"python not found"
+    Try "python3" instead of "python"
+
+"pip not found"
+    Try "pip3" or "python -m pip"
+
+"port already in use"
+    Change the port by adding PORT=3000 before the command:
+        PORT=3000 python run.py       (Mac/Linux)
+        set PORT=3000 && python run.py  (Windows)
+    Then go to http://localhost:3000
+
+"ModuleNotFoundError"
+    You are probably in the wrong folder.
+    Make sure you ran "cd pulse/artifacts/api-server-python" first.
+
+"could not connect to database"
+    Double-check your DATABASE_URL value — it must match exactly.

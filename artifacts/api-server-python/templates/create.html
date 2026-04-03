@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Create a Poll &mdash; Pulse{% endblock %}
+
+{% block content %}
+
+<div class="max-w-xl">
+
+  <h1 class="text-xl font-bold text-white mb-1">Create a Poll</h1>
+  <p class="text-sm text-gray-400 mb-8">Ask anything. Anyone can vote.</p>
+
+  {% if error %}
+  <div class="mb-6 px-4 py-3 rounded-lg border border-red-800 bg-red-950/40 text-sm text-red-300">
+    {{ error }}
+  </div>
+  {% endif %}
+
+  <form method="POST" action="/create" class="space-y-5">
+
+    <!-- Question -->
+    <div>
+      <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Question *</label>
+      <input type="text" name="title" required maxlength="300"
+             placeholder="Will AI replace most software jobs by 2030?"
+             class="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-900 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition" />
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Description <span class="text-gray-600 normal-case font-normal">(optional)</span></label>
+      <textarea name="description" rows="3" maxlength="1000"
+                placeholder="Add context or background information..."
+                class="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-900 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition resize-none"></textarea>
+    </div>
+
+    <!-- Category & Creator row -->
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Category</label>
+        <select name="category"
+                class="w-full px-3 py-3 rounded-lg border border-gray-700 bg-gray-900 text-sm text-white focus:outline-none focus:border-blue-500 transition cursor-pointer">
+          <option value="">None</option>
+          {% for cat in categories %}
+          <option value="{{ cat }}">{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Your name <span class="text-gray-600 normal-case font-normal">(optional)</span></label>
+        <input type="text" name="creator_name" maxlength="100"
+               placeholder="Anonymous"
+               class="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-900 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition" />
+      </div>
+    </div>
+
+    <!-- Closing date -->
+    <div>
+      <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Closes at <span class="text-gray-600 normal-case font-normal">(optional)</span></label>
+      <input type="datetime-local" name="ends_at"
+             class="px-4 py-3 rounded-lg border border-gray-700 bg-gray-900 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition
+                    [color-scheme:dark]" />
+    </div>
+
+    <!-- Options -->
+    <div>
+      <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Answer Options</label>
+      <div class="space-y-2.5">
+        <input type="text" name="option1" required maxlength="200"
+               placeholder="Option 1"
+               class="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-900 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition" />
+        <input type="text" name="option2" required maxlength="200"
+               placeholder="Option 2"
+               class="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-900 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition" />
+        <input type="text" name="option3" maxlength="200"
+               placeholder="Option 3 (optional)"
+               class="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-900 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition" />
+        <input type="text" name="option4" maxlength="200"
+               placeholder="Option 4 (optional)"
+               class="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-900 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition" />
+        <input type="text" name="option5" maxlength="200"
+               placeholder="Option 5 (optional)"
+               class="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-900 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition" />
+        <input type="text" name="option6" maxlength="200"
+               placeholder="Option 6 (optional)"
+               class="w-full px-4 py-3 rounded-lg border border-gray-700 bg-gray-900 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition" />
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="pt-2">
+      <button type="submit"
+              class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold py-3 rounded-lg transition text-sm">
+        Create Poll
+      </button>
+    </div>
+
+  </form>
+</div>
+
+{% endblock %}

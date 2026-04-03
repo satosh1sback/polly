@@ -1,0 +1,28 @@
+<div id="vote-section">
+  <p class="text-xs text-gray-500 mb-4 font-medium uppercase tracking-wider">Results</p>
+  <div class="space-y-3">
+    {% for opt in poll.options %}
+    {% set is_winner = loop.first %}
+    {% set voted = (opt.id == user_voted_option_id) %}
+    <div class="rounded-xl border px-5 py-4 transition
+                {% if voted %}border-blue-500 bg-blue-950/30{% elif is_winner %}border-gray-600 bg-gray-900{% else %}border-gray-800 bg-gray-900/60{% endif %}">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-sm font-medium text-white flex items-center gap-2">
+          {{ opt.text }}
+          {% if voted %}<span class="text-[10px] text-blue-400 font-semibold uppercase tracking-wider">Your vote</span>{% endif %}
+        </span>
+        <span class="text-sm font-bold {% if is_winner %}text-blue-400{% else %}text-gray-300{% endif %}">
+          {{ opt.percentage }}%
+        </span>
+      </div>
+      <div class="h-2 rounded-full bg-gray-800 overflow-hidden">
+        <div class="h-full rounded-full bar-fill
+                    {% if voted %}bg-blue-500{% elif is_winner %}bg-blue-600{% else %}bg-gray-600{% endif %}"
+             style="width: {{ opt.percentage }}%"></div>
+      </div>
+      <p class="text-xs text-gray-500 mt-1.5">{{ "{:,}".format(opt.vote_count) }} vote{{ 's' if opt.vote_count != 1 else '' }}</p>
+    </div>
+    {% endfor %}
+  </div>
+  <p class="mt-4 text-xs text-gray-600">{{ "{:,}".format(poll.total_votes) }} total votes</p>
+</div>

@@ -1,0 +1,51 @@
+{% if polls %}
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  {% for poll in polls %}
+  <a href="/poll/{{ poll.id }}"
+     class="group block rounded-xl border border-gray-800 bg-gray-900 p-5 hover:border-gray-600 hover:bg-gray-800/60 transition-all duration-200">
+
+    <!-- Category badge -->
+    {% if poll.category %}
+    <span class="inline-block mb-3 px-2 py-0.5 rounded text-[10px] font-semibold tracking-widest uppercase text-blue-400 bg-blue-900/40 border border-blue-800/60">
+      {{ poll.category }}
+    </span>
+    {% endif %}
+
+    <!-- Title -->
+    <h2 class="text-sm font-semibold text-white leading-snug mb-3 group-hover:text-blue-300 transition-colors line-clamp-3">
+      {{ poll.title }}
+    </h2>
+
+    <!-- Top option bar -->
+    {% if poll.top_option and poll.total_votes > 0 %}
+    <div class="mb-3">
+      <div class="flex justify-between text-xs text-gray-500 mb-1">
+        <span class="truncate max-w-[70%]">{{ poll.top_option.text }}</span>
+        <span class="font-medium text-gray-300">{{ poll.top_option.percentage }}%</span>
+      </div>
+      <div class="h-1.5 rounded-full bg-gray-800 overflow-hidden">
+        <div class="h-full rounded-full bg-blue-500 bar-fill" style="width: {{ poll.top_option.percentage }}%"></div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Meta -->
+    <div class="flex items-center justify-between text-xs text-gray-500 mt-auto">
+      <span>{{ "{:,}".format(poll.total_votes) }} vote{{ 's' if poll.total_votes != 1 else '' }}</span>
+      <span>{{ poll.created_at | timeago }}</span>
+    </div>
+
+    <!-- Active badge -->
+    {% if not poll.is_active %}
+    <span class="mt-2 inline-block text-[10px] text-red-400 font-medium">Closed</span>
+    {% endif %}
+
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="flex flex-col items-center justify-center py-20 text-center">
+  <p class="text-gray-400 text-sm">No polls found.</p>
+  <a href="/create" class="mt-4 text-blue-400 hover:text-blue-300 text-sm transition">Create the first one</a>
+</div>
+{% endif %}

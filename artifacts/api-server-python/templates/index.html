@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Pulse &mdash; Explore Polls{% endblock %}
+
+{% block content %}
+
+<!-- Stats row -->
+<div class="flex flex-wrap gap-4 mb-8">
+  <div class="flex-1 min-w-[140px] rounded-xl border border-gray-800 bg-gray-900 px-5 py-4">
+    <p class="text-xs uppercase tracking-widest text-gray-500 mb-1">Total Polls</p>
+    <p class="text-2xl font-bold text-white">{{ "{:,}".format(total_polls) }}</p>
+  </div>
+  <div class="flex-1 min-w-[140px] rounded-xl border border-gray-800 bg-gray-900 px-5 py-4">
+    <p class="text-xs uppercase tracking-widest text-gray-500 mb-1">Total Votes</p>
+    <p class="text-2xl font-bold text-white">{{ "{:,}".format(total_votes) }}</p>
+  </div>
+  <div class="flex-1 min-w-[140px] rounded-xl border border-gray-800 bg-gray-900 px-5 py-4">
+    <p class="text-xs uppercase tracking-widest text-gray-500 mb-1">Active Now</p>
+    <p class="text-2xl font-bold text-green-400">{{ active_polls }}</p>
+  </div>
+</div>
+
+<!-- Page heading -->
+<h1 class="text-2xl font-bold text-white mb-6">Explore</h1>
+
+<!-- Filters -->
+<form id="filter-form"
+      hx-get="/partials/polls"
+      hx-trigger="change, input changed delay:350ms from:[name='search']"
+      hx-target="#polls-grid"
+      hx-indicator="#spin"
+      class="flex flex-wrap gap-3 mb-4">
+
+  <!-- Search -->
+  <div class="relative flex-1 min-w-[200px]">
+    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+    </svg>
+    <input name="search" type="text" value="{{ current_search }}"
+           placeholder="Search polls..."
+           class="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-700 bg-gray-900 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 transition" />
+  </div>
+
+  <!-- Sort -->
+  <select name="sort"
+          class="px-3 py-2.5 rounded-lg border border-gray-700 bg-gray-900 text-sm text-white focus:outline-none focus:border-blue-500 transition cursor-pointer">
+    <option value="trending"    {% if current_sort == "trending" %}selected{% endif %}>Trending</option>
+    <option value="most_voted"  {% if current_sort == "most_voted" %}selected{% endif %}>Most Voted</option>
+    <option value="newest"      {% if current_sort == "newest" %}selected{% endif %}>Newest</option>
+    <option value="closing_soon"{% if current_sort == "closing_soon" %}selected{% endif %}>Closing Soon</option>
+  </select>
+
+  <!-- Category hidden input -->
+  <input type="hidden" id="category-input" name="category" value="{{ current_category }}" />
+
+  <!-- Loading indicator -->
+  <span id="spin" class="htmx-indicator self-center text-xs text-gray-500">Loading...</span>
+</form>
+
+<!-- Category pills -->
+<div class="flex flex-wrap gap-2 mb-6">
+  <button type="button" onclick="setCategory('')"
+          class="pill px-3 py-1.5 rounded-full text-xs font-medium border transition
+                 {% if not current_category %}bg-blue-600 border-blue-600 text-white{% else %}border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white{% endif %}">
+    All
+  </button>
+  {% for cat, n in categories %}
+  <button type="button" onclick="setCategory('{{ cat }}')"
+          class="pill px-3 py-1.5 rounded-full text-xs font-medium border transition
+                 {% if current_category == cat %}bg-blue-600 border-blue-600 text-white{% else %}border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white{% endif %}">
+    {{ cat }} <span class="opacity-60">{{ n }}</span>
+  </button>
+  {% endfor %}
+</div>
+
+<!-- Polls grid (HTMX target) -->
+<div id="polls-grid">
+  {% include "_polls_grid.html" %}
+</div>
+
+<script>
+function setCategory(cat) {
+  document.getElementById('category-input').value = cat;
+  htmx.trigger('#filter-form', 'change');
+  // Update active pill appearance
+  document.querySelectorAll('.pill').forEach(btn => {
+    const isSame = (cat === '' && btn.textContent.trim().startsWith('All')) ||
+                   btn.getAttribute('onclick') === `setCategory('${cat}')`;
+    if (isSame) {
+      btn.className = btn.className.replace(/border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white/, '');
+      btn.classList.add('bg-blue-600', 'border-blue-600', 'text-white');
+    } else {
+      btn.classList.remove('bg-blue-600', 'border-blue-600', 'text-white');
+      btn.classList.add('border-gray-700', 'text-gray-400', 'hover:border-gray-500', 'hover:text-white');
+    }
+  });
+}
+</script>
+
+{% endblock %}

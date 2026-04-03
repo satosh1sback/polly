@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ poll.title }} &mdash; Pulse{% endblock %}
+
+{% block content %}
+
+<!-- Back -->
+<a href="/" class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition mb-6">
+  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+  </svg>
+  Back to Explore
+</a>
+
+<div class="max-w-2xl">
+
+  <!-- Header -->
+  {% if poll.category %}
+  <span class="inline-block mb-3 px-2 py-0.5 rounded text-[10px] font-semibold tracking-widest uppercase text-blue-400 bg-blue-900/40 border border-blue-800/60">
+    {{ poll.category }}
+  </span>
+  {% endif %}
+
+  <h1 class="text-xl font-bold text-white leading-snug mb-2">{{ poll.title }}</h1>
+
+  {% if poll.description %}
+  <p class="text-gray-400 text-sm mb-4">{{ poll.description }}</p>
+  {% endif %}
+
+  <div class="flex flex-wrap gap-4 text-xs text-gray-500 mb-8">
+    <span>{{ "{:,}".format(poll.total_votes) }} vote{{ 's' if poll.total_votes != 1 else '' }}</span>
+    <span>Started {{ poll.created_at | timeago }}</span>
+    {% if poll.creator_name %}<span>by {{ poll.creator_name }}</span>{% endif %}
+    {% if not poll.is_active %}<span class="text-red-400 font-medium">Closed</span>{% endif %}
+  </div>
+
+  <!-- Voting section -->
+  <div id="vote-section">
+    {% if user_voted_option_id %}
+      {% include "_vote_results.html" %}
+    {% elif poll.is_active %}
+      <!-- Vote buttons -->
+      <div class="space-y-3">
+        {% for opt in poll.options %}
+        <form hx-post="/poll/{{ poll.id }}/vote"
+              hx-target="#vote-section"
+              hx-swap="outerHTML"
+              hx-indicator="#vote-loading">
+          <input type="hidden" name="option_id" value="{{ opt.id }}" />
+          <button type="submit"
+                  class="w-full text-left px-5 py-3.5 rounded-xl border border-gray-700 bg-gray-900 hover:border-blue-500 hover:bg-blue-950/30 text-sm text-white transition-all duration-150 active:scale-[0.99] cursor-pointer">
+            {{ opt.text }}
+          </button>
+        </form>
+        {% endfor %}
+        <p id="vote-loading" class="htmx-indicator text-xs text-gray-500 mt-2">Submitting vote...</p>
+      </div>
+    {% else %}
+      <!-- Closed poll: show results -->
+      {% include "_vote_results.html" %}
+    {% endif %}
+  </div>
+
+</div>
+
+{% endblock %}
